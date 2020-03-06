@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -87,59 +89,82 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    stack = util.Stack() #Initialize the stack.
-    visited = set() #Initialize a visited set that contain the visited nodes during traversal.
-    start = problem.getStartState() # Get the start state of agent.
-    stack.push((start, [])) #push the start state into the stack.
+    stack = util.Stack()  # Initialize the stack.
+    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    start = problem.getStartState()  # Get the start state of agent.
+    stack.push((start, []))  # push the start state into the stack.
 
     while not stack.isEmpty():
-        currentNode, currentAction = stack.pop()  #pop out the node(start) and actions taken by the agent(n,e,w,s)
-        if problem.isGoalState(currentNode):
-            return currentAction   #base case
-        if currentNode not in visited:
-            visited.add(currentNode)  #If node not visited, add in set.
-            NodeSuccessors = problem.getSuccessors(currentNode) #Get the successors of the current Node in the stack.
-            for currentchild in NodeSuccessors:
-                    #For each child node, get it's child nodes and action to get there and also the cost.
-                    #This will continue until the stack is empty.
-                currentSuccessor, action, currentCost = currentchild
-                stack.push((currentSuccessor, currentAction + [action]))
+        current_node, current_action = stack.pop()  # pop out the node(start) and actions taken by the agent(n,e,w,s)
+        if problem.isGoalState(current_node):
+            return current_action  # base case
+        if current_node not in visited:
+            visited.add(current_node)  # If node not visited, add in set.
+            node_successors = problem.getSuccessors(
+                current_node)  # Get the successors of the current Node in the stack.
+            for current_child in node_successors:
+                # For each child node, get it's child nodes and action to get there and also the cost.
+                # This will continue until the stack is empty.
+                current_successor, action, current_cost = current_child
+                stack.push((current_successor, current_action + [action]))
     return []
-    
-    
-    util.raiseNotDefined()
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    
-    queue = util.Queue() #Initialize the Queue.
-    visited = set() #Initialize a visited set that contain the visited nodes during traversal.
-    start = problem.getStartState() # Get the start state of agent.
-    print("Start Node", start)
-    queue.push((start, [])) #push the start state and empty list of actions into the queue.
+
+    queue = util.Queue()  # Initialize the Queue.
+    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    start = problem.getStartState()  # Get the start state of agent.
+    queue.push((start, []))  # push the start state and empty list of actions into the queue.
 
     while not queue.isEmpty():
-        currentNode, currentAction = queue.pop()  #pop out the node(start) and actions taken by the agent(n,e,w,s)
-        if problem.isGoalState(currentNode):
-            return currentAction   #base case
-        if currentNode not in visited:
-            print("current Node", currentNode)
-            visited.add(currentNode)  #If node not visited, add in set.
-            NodeSuccessors = problem.getSuccessors(currentNode) #Get the successors of the current Node in the queue.
-            print("Node Successors ", NodeSuccessors)
-            for currentchild in NodeSuccessors:
-                    #For each child node, get it's child nodes and action to get there and also the cost.
-                    #This will continue until the stack is empty.
-                currentSuccessor, action, currentCost = currentchild
-                queue.push((currentSuccessor, currentAction + [action]))
+        current_node, current_action = queue.pop()  # dequeue out the node(start) and actions taken by the agent(n,e,
+        # w,s)
+        if problem.isGoalState(current_node):
+            return current_action  # base case
+        if current_node not in visited:
+            visited.add(current_node)  # If node not visited, add in set.
+            node_successors = problem.getSuccessors(
+                current_node)  # Get the successors of the current Node in the queue.
+            for current_child in node_successors:
+                # For each child node, get it's child nodes and action to get there and also the cost.
+                # This will continue until the queue is empty.
+                current_successor, action, _ = current_child
+                queue.push((current_successor, current_action + [action]))
     return []
-    util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    def priority_func(path):
+        return problem.getCostOfActions([x for idx, x in enumerate(path) if idx > 0][0])
+
+    priority_queue = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
+    # cost of path.
+    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    start = problem.getStartState()  # Get the start state of agent.
+    priority_queue.push((start, []))  # push the start state into the Priority Queue.
+
+    while not priority_queue.isEmpty():
+        current_node, current_action = priority_queue.pop()  # dequeue out the node(start) and actions taken by the
+        # agent(n,e,w,s)
+        if problem.isGoalState(current_node):
+            return current_action  # base case
+        if current_node not in visited:
+            visited.add(current_node)  # If node not visited, add in set.
+            node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node in the
+            # queue.
+            for current_child in node_successors:
+                # For each child node, get it's child nodes and action to get there and also the cost.
+                # This will continue until the queue is empty.
+                current_successor, action, _ = current_child
+                priority_queue.push((current_successor, current_action + [action]))
+    return []
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -148,33 +173,33 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    #Incomplete.
-    open = util.PriorityQueue()
-    close = []
-    start = problem.getStartState()
-
-    #Base Case.
-    if problem.isGoalState(start):
-        return []
-
-
-    cost = 0 + manhattanHeuristic(start, problem)
-    open.push((start, []), cost)
-
-    while not open.isEmpty():
-        currentNode, currentAction = open.pop()
-        if problem.isGoalState(currentNode):
-            return currentAction
-
-            generatedSuccessors = problem.getSuccessors(currentNode)
-            for eachSuccessor in generatedSuccessors:
-                successor, action, cost = eachSuccessor
-                open.push((successor, currentAction + [action]), problem.getCostOfActions(currentAction) +
-                          cost + heuristic(successor, problem))
-    return []
+    # # Incomplete.
+    # open = util.PriorityQueue()
+    # close = []
+    # start = problem.getStartState()
+    #
+    # # Base Case.
+    # if problem.isGoalState(start):
+    #     return []
+    #
+    # cost = 0 + manhattanHeuristic(start, problem)
+    # open.push((start, []), cost)
+    #
+    # while not open.isEmpty():
+    #     currentNode, currentAction = open.pop()
+    #     if problem.isGoalState(currentNode):
+    #         return currentAction
+    #
+    #         generatedSuccessors = problem.getSuccessors(currentNode)
+    #         for eachSuccessor in generatedSuccessors:
+    #             successor, action, cost = eachSuccessor
+    #             open.push((successor, currentAction + [action]), problem.getCostOfActions(currentAction) +
+    #                       cost + heuristic(successor, problem))
+    # return []
     util.raiseNotDefined()
 
 
