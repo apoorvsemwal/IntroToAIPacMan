@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -299,7 +299,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.costFn = cornersHeuristic
         self.visualize = True
 
     def getStartState(self):
@@ -344,13 +343,11 @@ class CornersProblem(search.SearchProblem):
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
                 next_state = tuple([(next_x, next_y), state[1]])
-                # cost = self.costFn(next_state) #added a dummy 0 cost to comply with PositionSearchProblem
-                cost = 1
                 if next_state[0] in state[1]:
                     unvisited_corners = tuple((corner for corner in state[1] if corner != next_state[0]))
                     next_state = tuple([(next_x, next_y), unvisited_corners])
+                cost = 1
                 successors.append((next_state, action, cost))
-                # format
 
         self._expanded += 1  # DO NOT CHANGE
         return successors
@@ -382,14 +379,13 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners  # These are the corner coordinates
-    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
     "*** YOUR CODE HERE ***"
-    curr_node = problem.getStartState()[0]  # Get the start position of agent.
+    curr_node = state[0]  # Get the current position of agent.
+    corners = state[1]  # Get the Unvisited corners
     heuristic = 0
 
     unvisited_corners = []
-    for i in range(4):
+    for i in range(len(corners)):
         unvisited_corners.append(corners[i])
 
     while unvisited_corners:
