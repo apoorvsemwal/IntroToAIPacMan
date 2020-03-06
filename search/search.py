@@ -103,7 +103,7 @@ def depthFirstSearch(problem):
             node_successors = problem.getSuccessors(
                 current_node)  # Get the successors of the current Node in the stack.
             for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there and also the cost.
+                # For each child node, get it's child nodes and action to get there.
                 # This will continue until the stack is empty.
                 current_successor, action, _ = current_child
                 stack.push((current_successor, current_action + [action]))
@@ -129,7 +129,7 @@ def breadthFirstSearch(problem):
             node_successors = problem.getSuccessors(
                 current_node)  # Get the successors of the current Node in the queue.
             for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there and also the cost.
+                # For each child node, get it's child nodes and action to get there.
                 # This will continue until the queue is empty.
                 current_successor, action, _ = current_child
                 queue.push((current_successor, current_action + [action]))
@@ -141,7 +141,7 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
 
     def priority_func(path):
-        return problem.getCostOfActions([x for idx, x in enumerate(path) if idx > 0][0])
+        return problem.getCostOfActions(path[1])
 
     priority_queue = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
     # cost of path.
@@ -159,7 +159,7 @@ def uniformCostSearch(problem):
             node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node in the
             # queue.
             for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there and also the cost.
+                # For each child node, get it's child nodes and action to get there.
                 # This will continue until the queue is empty.
                 current_successor, action, _ = current_child
                 priority_queue.push((current_successor, current_action + [action]))
@@ -177,30 +177,33 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # # Incomplete.
-    # open = util.PriorityQueue()
-    # close = []
-    # start = problem.getStartState()
-    #
-    # # Base Case.
-    # if problem.isGoalState(start):
-    #     return []
-    #
-    # cost = 0 + manhattanHeuristic(start, problem)
-    # open.push((start, []), cost)
-    #
-    # while not open.isEmpty():
-    #     currentNode, currentAction = open.pop()
-    #     if problem.isGoalState(currentNode):
-    #         return currentAction
-    #
-    #         generatedSuccessors = problem.getSuccessors(currentNode)
-    #         for eachSuccessor in generatedSuccessors:
-    #             successor, action, cost = eachSuccessor
-    #             open.push((successor, currentAction + [action]), problem.getCostOfActions(currentAction) +
-    #                       cost + heuristic(successor, problem))
-    # return []
-    util.raiseNotDefined()
+
+    def priority_func(path):
+        act_cost_gn = problem.getCostOfActions(path[1])
+        est_cost_fn = heuristic(path[0], problem)
+        return act_cost_gn + est_cost_fn
+
+    priority_queue = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
+    # cost of path.
+    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    start = problem.getStartState()  # Get the start state of agent.
+    priority_queue.push((start, []))  # push the start state into the Priority Queue.
+
+    while not priority_queue.isEmpty():
+        current_node, current_action = priority_queue.pop()  # dequeue out the node(start) and actions taken by the
+        # agent(n,e,w,s)
+        if problem.isGoalState(current_node):
+            return current_action  # base case
+        if current_node not in visited:
+            visited.add(current_node)  # If node not visited, add in set.
+            node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node in the
+            # queue.
+            for current_child in node_successors:
+                # For each child node, get it's child nodes and action to get there.
+                # This will continue until the queue is empty.
+                current_successor, action, _ = current_child
+                priority_queue.push((current_successor, current_action + [action]))
+    return []
 
 
 # Abbreviations
