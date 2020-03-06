@@ -105,7 +105,7 @@ def depthFirstSearch(problem):
             for current_child in node_successors:
                 # For each child node, get it's child nodes and action to get there and also the cost.
                 # This will continue until the stack is empty.
-                current_successor, action, current_cost = current_child
+                current_successor, action, _ = current_child
                 stack.push((current_successor, current_action + [action]))
     return []
 
