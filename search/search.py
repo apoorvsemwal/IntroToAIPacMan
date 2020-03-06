@@ -89,51 +89,22 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    stack = util.Stack()  # Initialize the stack.
-    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    frontier = util.Stack()  # Initialize the stack.
+    closed = set()  # Initialize a visited set that contain the visited nodes during traversal.
     start = problem.getStartState()  # Get the start state of agent.
-    stack.push((start, []))  # push the start state into the stack.
-
-    while not stack.isEmpty():
-        current_node, current_action = stack.pop()  # pop out the node(start) and actions taken by the agent(n,e,w,s)
-        if problem.isGoalState(current_node):
-            return current_action  # base case
-        if current_node not in visited:
-            visited.add(current_node)  # If node not visited, add in set.
-            node_successors = problem.getSuccessors(
-                current_node)  # Get the successors of the current Node in the stack.
-            for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there.
-                # This will continue until the stack is empty.
-                current_successor, action, _ = current_child
-                stack.push((current_successor, current_action + [action]))
-    return []
+    frontier.push((start, []))  # push the start state into the stack.
+    return execute_common_search_logic(frontier, closed, problem)
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
 
-    queue = util.Queue()  # Initialize the Queue.
-    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    frontier = util.Queue()  # Initialize the Queue.
+    closed = set()  # Initialize a visited set that contain the visited nodes during traversal.
     start = problem.getStartState()  # Get the start state of agent.
-    queue.push((start, []))  # push the start state and empty list of actions into the queue.
-
-    while not queue.isEmpty():
-        current_node, current_action = queue.pop()  # dequeue out the node(start) and actions taken by the agent(n,e,
-        # w,s)
-        if problem.isGoalState(current_node):
-            return current_action  # base case
-        if current_node not in visited:
-            visited.add(current_node)  # If node not visited, add in set.
-            node_successors = problem.getSuccessors(
-                current_node)  # Get the successors of the current Node in the queue.
-            for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there.
-                # This will continue until the queue is empty.
-                current_successor, action, _ = current_child
-                queue.push((current_successor, current_action + [action]))
-    return []
+    frontier.push((start, []))  # push the start state and empty list of actions into the queue.
+    return execute_common_search_logic(frontier, closed, problem)
 
 
 def uniformCostSearch(problem):
@@ -143,27 +114,12 @@ def uniformCostSearch(problem):
     def priority_func(path):
         return problem.getCostOfActions(path[1])
 
-    priority_queue = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
+    frontier = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
     # cost of path.
-    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    closed = set()  # Initialize a visited set that contain the visited nodes during traversal.
     start = problem.getStartState()  # Get the start state of agent.
-    priority_queue.push((start, []))  # push the start state into the Priority Queue.
-
-    while not priority_queue.isEmpty():
-        current_node, current_action = priority_queue.pop()  # dequeue out the node(start) and actions taken by the
-        # agent(n,e,w,s)
-        if problem.isGoalState(current_node):
-            return current_action  # base case
-        if current_node not in visited:
-            visited.add(current_node)  # If node not visited, add in set.
-            node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node in the
-            # queue.
-            for current_child in node_successors:
-                # For each child node, get it's child nodes and action to get there.
-                # This will continue until the queue is empty.
-                current_successor, action, _ = current_child
-                priority_queue.push((current_successor, current_action + [action]))
-    return []
+    frontier.push((start, []))  # push the start state into the Priority Queue.
+    return execute_common_search_logic(frontier, closed, problem)
 
 
 def nullHeuristic(state, problem=None):
@@ -183,26 +139,28 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         est_cost_fn = heuristic(path[0], problem)
         return act_cost_gn + est_cost_fn
 
-    priority_queue = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
+    frontier = util.PriorityQueueWithFunction(priority_func)  # Priority Queue with priority function based on
     # cost of path.
-    visited = set()  # Initialize a visited set that contain the visited nodes during traversal.
+    closed = set()  # Initialize a visited set that contain the visited nodes during traversal.
     start = problem.getStartState()  # Get the start state of agent.
-    priority_queue.push((start, []))  # push the start state into the Priority Queue.
+    frontier.push((start, []))  # push the start state into the Priority Queue.
+    return execute_common_search_logic(frontier, closed, problem)
 
-    while not priority_queue.isEmpty():
-        current_node, current_action = priority_queue.pop()  # dequeue out the node(start) and actions taken by the
+
+def execute_common_search_logic(frontier, closed, problem):
+    while not frontier.isEmpty():
+        current_node, current_action = frontier.pop()  # remove out the node(start) and actions taken by the
         # agent(n,e,w,s)
         if problem.isGoalState(current_node):
-            return current_action  # base case
-        if current_node not in visited:
-            visited.add(current_node)  # If node not visited, add in set.
-            node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node in the
-            # queue.
+            return current_action  # Anchor condition
+        if current_node not in closed:
+            closed.add(current_node)  # If node not visited, add in set.
+            node_successors = problem.getSuccessors(current_node)  # Get the successors of the current Node.
             for current_child in node_successors:
                 # For each child node, get it's child nodes and action to get there.
-                # This will continue until the queue is empty.
                 current_successor, action, _ = current_child
-                priority_queue.push((current_successor, current_action + [action]))
+                # Pushing successor along with the action required to reach that successor
+                frontier.push((current_successor, current_action + [action]))
     return []
 
 
