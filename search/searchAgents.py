@@ -499,14 +499,18 @@ def foodHeuristic(state, problem):
     pack_to_closest_food_dist = float('inf')
     closest_food_to_farthest_food_dist = float('-inf')
     food_positions = foodGrid.asList()
+    closest_food = tuple()
+
     for food_close in food_positions:
-            pac_to_food_dist = mazeDistance(position, food_close, problem.startingGameState)
-            if pac_to_food_dist < pack_to_closest_food_dist:
-                pack_to_closest_food_dist = pac_to_food_dist
-            for food_far in food_positions:
-                food_to_food_dist = mazeDistance(food_close, food_far, problem.startingGameState)
-                if food_to_food_dist > closest_food_to_farthest_food_dist:
-                    closest_food_to_farthest_food_dist = food_to_food_dist
+        pac_to_food_dist = mazeDistance(position, food_close, problem.startingGameState)
+        if pac_to_food_dist < pack_to_closest_food_dist:
+            pack_to_closest_food_dist = pac_to_food_dist
+            closest_food = food_close
+
+    for food_far in food_positions:
+        food_to_food_dist = mazeDistance(closest_food, food_far, problem.startingGameState)
+        if food_to_food_dist > closest_food_to_farthest_food_dist:
+            closest_food_to_farthest_food_dist = food_to_food_dist
 
     if pack_to_closest_food_dist == float('inf'):
         return 0
